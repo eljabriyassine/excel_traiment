@@ -7,7 +7,7 @@ import ExcelProcessor from "./components/excel-process";
 function App() {
   return (
     <>
-      <div className="text-center">
+      <div className="">
         <ExcelProcessor />
       </div>
     </>

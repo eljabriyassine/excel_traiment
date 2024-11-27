@@ -27,7 +27,7 @@ export default function PreviewExcel({ preview, setPreview, setFile }) {
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
-                          {preview[0].map((header, index) => (
+                          {preview[0].map((header: any, index: any) => (
                             <th
                               key={index}
                               className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -38,7 +38,7 @@ export default function PreviewExcel({ preview, setPreview, setFile }) {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {preview.slice(1).map((row, rowIndex) => (
+                        {preview.slice(1).map((row: any, rowIndex: any) => (
                           <tr key={rowIndex}>
                             {row.map((cell, cellIndex) => (
                               <td
