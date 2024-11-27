@@ -1,30 +1,31 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Upload, FileCheck, Loader2 } from "lucide-react";
-import * as XLSX from "xlsx"; // Import xlsx library
+import * as XLSX from "xlsx";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import PreviewExcel from "./preview-excel";
 
 export default function ExcelProcessor() {
   const [file, setFile] = useState<File | null>(null);
+  const [downloadFile, setDownloadFile] = useState<Blob | null>(null);
+  const [preview, setPreview] = useState<string[][]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProcessed, setIsProcessed] = useState(false);
-  const [preview, setPreview] = useState<string[][]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [downloadFile, setDownloadFile] = useState<Blob | null>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      console.log(selectedFile.name);
       setFile(selectedFile);
       generatePreview(selectedFile);
     }
   };
 
-  const generatePreview = (file: File) => {
+  const generatePreview = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const content = e.target?.result as string;
+      const content = e.target?.result;
 
       // Parse the Excel file using the XLSX library
       const workbook = XLSX.read(content, { type: "binary" });
@@ -34,7 +35,7 @@ export default function ExcelProcessor() {
 
       setPreview(data as string[][]);
     };
-    reader.readAsBinaryString(file); // Read the file as binary string
+    reader.readAsBinaryString(file);
   };
 
   const processFile = async () => {
@@ -46,8 +47,11 @@ export default function ExcelProcessor() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://127.0.0.1:5000/process_excel", {
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const response = await fetch(`${apiUrl}/process_excel`, {
         method: "POST",
+        body: formData,
       });
 
       if (!response.ok) {
@@ -55,7 +59,6 @@ export default function ExcelProcessor() {
       }
 
       const blob = await response.blob();
-      console.log("result", blob);
 
       setDownloadFile(blob);
 
@@ -63,18 +66,18 @@ export default function ExcelProcessor() {
       setIsProcessing(false);
       setFile(null);
     } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("An error occurred while processing the file.");
+      console.log(
+        "An error occurred while processing the file." + error.message
+      );
     } finally {
       setIsProcessing(false);
     }
   };
 
   const downloadProcessedFile = () => {
-    console.log("Downloading processed file...");
     if (!downloadFile) return;
 
-    const url = window.URL.createObjectURL(downloadFile);
+    const url = URL.createObjectURL(downloadFile);
 
     const a = document.createElement("a");
     a.href = url;
@@ -91,6 +94,17 @@ export default function ExcelProcessor() {
     setPreview([]);
     setDownloadFile(null);
     setIsProcessed(false);
+    setIsProcessed(false);
+  };
+
+  const notify = () => {
+    toast.error("This is a toast error !");
+    // toast.warning("This is a toast warning !");
+    // toast.loading("This is a toast loading !");
+    // toast.dark("This is a toast dark !");
+    // toast.play();
+    // toast.pause();
+    // toast.dismiss();
   };
 
   return (
@@ -99,8 +113,11 @@ export default function ExcelProcessor() {
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">
           Excel File Processor
         </h1>
-
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div>
+          <Button onClick={notify}>Notify !</Button>
+          <ToastContainer position="top-left" />
+        </div>
+        <div className="bg-white shadow-md rounded-lg p-6 relative">
           {!downloadFile && (
             <div>
               {!file ? (
@@ -125,65 +142,24 @@ export default function ExcelProcessor() {
                             name="file-upload"
                             type="file"
                             className="sr-only"
-                            accept=".xlsx,.xls,.csv"
+                            accept=".xlsx,.xls,.csv,.pdf"
                             onChange={handleFileChange}
-                            ref={fileInputRef}
                           />
                         </label>
                         <p className="pl-1">or drag and drop</p>
                       </div>
                       <p className="text-xs  text-gray-500 text-center">
-                        Excel or CSV files up to 10MB
+                        Excel or CSV files
                       </p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="mb-6  bg-red-500">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {preview.length > 0 && (
-                          <div>
-                            <h3 className="font-semibold mb-2">
-                              File Preview:
-                            </h3>
-                            <div className="overflow-x-auto  h-96">
-                              <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                  <tr>
-                                    {preview[0].map((header, index) => (
-                                      <th
-                                        key={index}
-                                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                      >
-                                        {header}
-                                      </th>
-                                    ))}
-                                  </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                  {preview.slice(1).map((row, rowIndex) => (
-                                    <tr key={rowIndex}>
-                                      {row.map((cell, cellIndex) => (
-                                        <td
-                                          key={cellIndex}
-                                          className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                        >
-                                          {cell}
-                                        </td>
-                                      ))}
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                <PreviewExcel
+                  preview={preview}
+                  setPreview={setPreview}
+                  setFile={setFile}
+                />
               )}
               <div className="mt-4">
                 <button
@@ -250,4 +226,8 @@ export default function ExcelProcessor() {
       </div>
     </div>
   );
+}
+
+function Button({ onClick, children }) {
+  return <button onClick={onClick}>{children + "Button"}</button>;
 }

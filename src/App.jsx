@@ -1,5 +1,5 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
+import reactLogo from "./assets/remove.png";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import ExcelProcessor from "./components/excel-process";
