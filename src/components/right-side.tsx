@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react";
 
 interface RightSideProps {
   cols: string[];
+  setIsAllColumnSelected: any;
+  setSelectedOptions: any;
+  selectedOptions: any;
 }
 
-interface SelectedOptions {
-  [key: string]: string;
-}
-
-export default function RightSide({ cols }: RightSideProps) {
-  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
-
+export default function RightSide({
+  cols,
+  setIsAllColumnSelected,
+  setSelectedOptions,
+  selectedOptions,
+}: RightSideProps) {
   const handleChange = (col: string, value: string) => {
     setSelectedOptions((prev) => ({
       ...prev,
@@ -19,20 +21,23 @@ export default function RightSide({ cols }: RightSideProps) {
   };
 
   useEffect(() => {
-    console.log(selectedOptions);
-    alert("Selected Options: " + JSON.stringify(selectedOptions));
+    setIsAllColumnSelected(Object.keys(selectedOptions).length === cols.length);
+    console.log("selectedOptions", selectedOptions);
+    console.log("Object" + Object.keys(selectedOptions).length);
+    console.log("Cols" + cols.length);
   }, [selectedOptions]);
 
-  const options = ["telephone", "TIERS", "MONTANT_IMP"];
+  const options = ["telephone", "montant", "user_agent", "ip", "date"];
 
   return (
-    <div>
+    <div className="max-w-sm mx-auto">
       {cols.map((col: any, index: any) => {
         return (
-          <form className="max-w-sm mx-auto">
+          <form>
             <div key={index}>
               <label htmlFor="countries" className=" mb-2 text-sm font-medium ">
                 {col}
+                <span className="text-red-600 font-black ml-2">*</span>
               </label>
               <select
                 id={`col-${index}`}
@@ -50,6 +55,7 @@ export default function RightSide({ cols }: RightSideProps) {
                 ))}
               </select>
             </div>
+            {/* crreat a button */}
           </form>
         );
       })}

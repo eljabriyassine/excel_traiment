@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Upload, FileCheck, Loader2 } from "lucide-react";
 import * as XLSX from "xlsx";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, collapseToast, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PreviewExcel from "./preview-excel";
 import RightSide from "./right-side";
+
+interface SelectedOptions {
+  [key: string]: string;
+}
 
 export default function ExcelProcessor() {
   const [file, setFile] = useState<File | null>(null);
@@ -14,6 +18,8 @@ export default function ExcelProcessor() {
   const [preview, setPreview] = useState<string[][]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProcessed, setIsProcessed] = useState(false);
+  const [isAllColumnSelected, setIsAllColumnSelected] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files?.[0];
@@ -39,6 +45,15 @@ export default function ExcelProcessor() {
     reader.readAsBinaryString(file);
   };
 
+  //   useEffect(() => {
+  //     alert("Selected Options" + JSON.stringify(selectedOptions));
+  //     setIsAllColumnSelected(
+  //       Object.keys(selectedOptions).length === collapseToast.length
+  //     );
+  // 	console.log(Object.keys(selectedOptions).length) ;
+  // 	console.log(preview[0].length) ;
+  //   }, [selectedOptions]);
+
   const processFile = async () => {
     if (!file) return;
 
@@ -47,6 +62,7 @@ export default function ExcelProcessor() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("selectedOptions", JSON.stringify(selectedOptions));
 
       const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -66,6 +82,7 @@ export default function ExcelProcessor() {
       setIsProcessed(true);
       setIsProcessing(false);
       setFile(null);
+      setPreview([]);
     } catch (error) {
       console.log(
         "An error occurred while processing the file." + error.message
@@ -106,6 +123,15 @@ export default function ExcelProcessor() {
     // toast.play();
     // toast.pause();
     // toast.dismiss();
+  };
+
+  const removeIconClicked = () => {
+    setFile(null);
+    setPreview([]);
+    setDownloadFile(null);
+    setIsProcessed(false);
+    setIsProcessed(false);
+    setSelectedOptions({});
   };
 
   return (
@@ -163,14 +189,19 @@ export default function ExcelProcessor() {
                 ) : (
                   <PreviewExcel
                     preview={preview}
-                    setPreview={setPreview}
-                    setFile={setFile}
+                    removeIconClicked={removeIconClicked}
                   />
                 )}
                 <div className="mt-4">
                   <button
                     onClick={processFile}
-                    disabled={!file || isProcessing || isProcessed}
+                    disabled={
+                      !file ||
+                      isProcessing ||
+                      isProcessed ||
+                      !isAllColumnSelected
+                      //   !isAllColumnSelected
+                    }
                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
                     {isProcessing ? (
@@ -233,7 +264,12 @@ export default function ExcelProcessor() {
       </div>
       {preview.length > 0 && (
         <div className="flex-[2] ">
-          <RightSide cols={preview[0]} />
+          <RightSide
+            cols={preview[0]}
+            setIsAllColumnSelected={setIsAllColumnSelected}
+            setSelectedOptions={setSelectedOptions}
+            selectedOptions={selectedOptions}
+          />
         </div>
       )}
     </div>

@@ -2,7 +2,7 @@ import React from "react";
 
 import removeIcon from "../assets/remove.png";
 
-export default function PreviewExcel({ preview, setPreview, setFile }) {
+export default function PreviewExcel({ preview, removeIconClicked }) {
   return (
     <div>
       <div className="mb-6  bg-red-500">
@@ -17,8 +17,7 @@ export default function PreviewExcel({ preview, setPreview, setFile }) {
                     <img
                       src={removeIcon}
                       onClick={() => {
-                        setPreview([]);
-                        setFile(null);
+                        removeIconClicked();
                       }}
                       className="w-10 h-10 absolute right-2 top-2 cursor-pointer "
                     ></img>
