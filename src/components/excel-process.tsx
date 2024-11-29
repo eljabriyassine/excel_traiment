@@ -7,6 +7,7 @@ import { ToastContainer, collapseToast, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PreviewExcel from "./preview-excel";
 import RightSide from "./right-side";
+import JSZip from "jszip";
 
 interface SelectedOptions {
   [key: string]: string;
@@ -15,6 +16,11 @@ interface SelectedOptions {
 export default function ExcelProcessor() {
   const [file, setFile] = useState<File | null>(null);
   const [downloadFile, setDownloadFile] = useState<Blob | null>(null);
+  const [downloadInvalidFile, setDownloadInvalidFile] = useState<Blob | null>(
+    null
+  );
+  const [fileNames, setFileNames] = useState<string[]>([]);
+
   const [preview, setPreview] = useState<string[][]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProcessed, setIsProcessed] = useState(false);
@@ -74,10 +80,37 @@ export default function ExcelProcessor() {
       if (!response.ok) {
         throw new Error("Failed to upload file");
       }
+      console.log(response);
 
       const blob = await response.blob();
+      const zip = await JSZip.loadAsync(blob);
+      // Get all files in the ZIP as an array
 
-      setDownloadFile(blob);
+      const fileNames = Object.keys(zip.files);
+      console.log("Files in ZIP:", fileNames); // Log the file names
+      setFileNames(fileNames);
+
+      const fileArray = Object.values(zip.files);
+
+      const validFile = fileArray[0];
+      const invalidFile = fileArray[1];
+
+      if (validFile) {
+        const validBlob = new Blob([await validFile.async("blob")], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        alert("Valid File");
+        setDownloadFile(validBlob);
+      }
+
+      if (invalidFile) {
+        const invalidBlob = new Blob([await invalidFile.async("blob")], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        setDownloadInvalidFile(invalidBlob);
+      }
+
+      //   setDownloadFile(blob);
 
       setIsProcessed(true);
       setIsProcessing(false);
@@ -92,14 +125,14 @@ export default function ExcelProcessor() {
     }
   };
 
-  const downloadProcessedFile = () => {
-    if (!downloadFile) return;
+  const downloadProcessedFile = (file: Blob, fileName: string) => {
+    if (!file) return;
 
-    const url = URL.createObjectURL(downloadFile);
+    const url = URL.createObjectURL(file);
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "processed_file.xlsx";
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
 
@@ -129,6 +162,7 @@ export default function ExcelProcessor() {
     setFile(null);
     setPreview([]);
     setDownloadFile(null);
+    setDownloadInvalidFile(null);
     setIsProcessed(false);
     setIsProcessed(false);
     setSelectedOptions({});
@@ -146,7 +180,7 @@ export default function ExcelProcessor() {
             Excel File Processor
           </h1>
           <div>
-            <Button onClick={notify}>Notify !</Button>
+            <Button onClick={notify}>Notify</Button>
             <ToastContainer position="top-left" />
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 relative">
@@ -235,13 +269,31 @@ export default function ExcelProcessor() {
                         <p>Your file has been successfully processed.</p>
                       </div>
                       <div className="mt-4">
-                        <button
-                          type="button"
-                          onClick={downloadProcessedFile}
-                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        >
-                          Download Processed File
-                        </button>
+                        {downloadFile && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              downloadProcessedFile(downloadFile, fileNames[0]);
+                            }}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          >
+                            Download Processed File
+                          </button>
+                        )}
+                        {downloadInvalidFile && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              downloadProcessedFile(
+                                downloadInvalidFile,
+                                fileNames[1]
+                              );
+                            }}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          >
+                            Download Processed File
+                          </button>
+                        )}
                       </div>
                     </div>
                     <div className="ml-3">
