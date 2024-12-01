@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/remove.png";
-import viteLogo from "/vite.svg";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import ExcelProcessor from "./components/excel-process";
 import Example from "./components/pagination.tsx";
@@ -26,11 +25,36 @@ function App() {
   }, []);
   return (
     <>
-      <div className="">
-        <hello />
-        {/* <ExcelProcessor /> */}
-        <Example data={data} />
-      </div>
+      <BrowserRouter>
+        <nav class=" bg-gray-50 dark:bg-gray-700 ">
+          <div className="w-4/5 mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center">
+              <ul class="flex flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
+                <li>
+                  <Link
+                    to="/"
+                    className="text-gray-900 dark:text-white hover:underline"
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/example"
+                    className="text-gray-900 dark:text-white hover:underline"
+                  >
+                    Historique
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <Routes>
+          <Route index element={<ExcelProcessor />} />
+          <Route path="/example" element={<Example data={data} />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
