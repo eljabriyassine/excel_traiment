@@ -40,7 +40,7 @@ function App() {
                 </li>
                 <li>
                   <Link
-                    to="/example"
+                    to="/historique"
                     className="text-gray-900 dark:text-white hover:underline"
                   >
                     Historique
@@ -52,7 +52,7 @@ function App() {
         </nav>
         <Routes>
           <Route index element={<ExcelProcessor />} />
-          <Route path="/example" element={<Example data={data} />} />
+          <Route path="/historique" element={<Example data={data} />} />
         </Routes>
       </BrowserRouter>
     </>
