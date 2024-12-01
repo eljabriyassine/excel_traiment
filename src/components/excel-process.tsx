@@ -80,7 +80,6 @@ export default function ExcelProcessor() {
       if (!response.ok) {
         throw new Error("Failed to upload file");
       }
-      console.log(response);
 
       const blob = await response.blob();
       const zip = await JSZip.loadAsync(blob);
@@ -127,6 +126,7 @@ export default function ExcelProcessor() {
 
   const downloadProcessedFile = (file: Blob, fileName: string) => {
     if (!file) return;
+    console.log("Download File" + fileName);
 
     const url = URL.createObjectURL(file);
 
@@ -262,22 +262,29 @@ export default function ExcelProcessor() {
                       />
                     </div>
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-green-800">
+                      <h3 className="text-sm font-medium text-gray-800">
                         Processing complete
                       </h3>
-                      <div className="mt-2 text-sm text-green-700">
+                      <div className="mt-2 text-sm text-gray-700">
                         <p>Your file has been successfully processed.</p>
                       </div>
-                      <div className="mt-4">
+                      <div className="mt-4 flex gap-5">
                         {downloadFile && (
                           <button
                             type="button"
                             onClick={() => {
                               downloadProcessedFile(downloadFile, fileNames[0]);
                             }}
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-black bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
                           >
-                            Download Processed File
+                            <svg
+                              className="fill-current w-4 h-4 mr-2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+                            </svg>
+                            Download Valid File
                           </button>
                         )}
                         {downloadInvalidFile && (
@@ -289,9 +296,16 @@ export default function ExcelProcessor() {
                                 fileNames[1]
                               );
                             }}
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                            className="inline-flex items-center px-4 py-2 border border-red-500 text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                           >
-                            Download Processed File
+                            <svg
+                              className="fill-current w-4 h-4 mr-2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+                            </svg>
+                            Download Invalid File
                           </button>
                         )}
                       </div>
@@ -301,7 +315,7 @@ export default function ExcelProcessor() {
                         <button
                           type="button"
                           onClick={convertNextOne}
-                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center"
                         >
                           Convert Next One
                         </button>
