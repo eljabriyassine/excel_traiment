@@ -132,6 +132,7 @@ export default function ExcelProcessor() {
     setDownloadFile(null);
     setIsProcessed(false);
     setIsProcessed(false);
+    setSelectedOptions({});
   };
 
   const notify = () => {
@@ -166,7 +167,6 @@ export default function ExcelProcessor() {
             Excel File Processor
           </h1>
           <div>
-            <Button onClick={notify}>Notify</Button>
             <ToastContainer position="top-left" />
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 relative">
@@ -326,8 +326,4 @@ export default function ExcelProcessor() {
       )}
     </div>
   );
-}
-
-function Button({ onClick, children }) {
-  return <button onClick={onClick}>{children + "Button"}</button>;
 }
