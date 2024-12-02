@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
-import ExcelProcessor from "./components/excel-process";
-import Example from "./components/pagination.tsx";
+import ExcelProcessor from "./components/ExcelProcessing/excel-process.tsx";
+import NavBar from "./components/header/nav-bar.tsx";
+import Historique from "./components/historique/historique.tsx";
 
 function App() {
   const [data, setData] = useState([]);
@@ -26,33 +27,10 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <nav class=" bg-gray-50 dark:bg-gray-700 ">
-          <div className="w-4/5 mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center">
-              <ul class="flex flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
-                <li>
-                  <Link
-                    to="/"
-                    className="text-gray-900 dark:text-white hover:underline"
-                  >
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/historique"
-                    className="text-gray-900 dark:text-white hover:underline"
-                  >
-                    Historique
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+        <NavBar />
         <Routes>
           <Route index element={<ExcelProcessor />} />
-          <Route path="/historique" element={<Example data={data} />} />
+          <Route path="/historique" element={<Historique data={data} />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { Upload, FileCheck, Loader2 } from "lucide-react";
-import * as XLSX from "xlsx";
 import { ToastContainer, collapseToast, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PreviewExcel from "./preview-excel";
-import RightSide from "./right-side";
+import RightSide from "../Sidebar./right-side";
 import JSZip from "jszip";
+import { generateExcelPreview } from "../../services/fileHelpers";
 
 interface SelectedOptions {
   [key: string]: string;
@@ -35,30 +35,18 @@ export default function ExcelProcessor() {
     }
   };
 
-  const generatePreview = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result;
-
-      // Parse the Excel file using the XLSX library
-      const workbook = XLSX.read(content, { type: "binary" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      setPreview(data as string[][]);
-    };
-    reader.readAsBinaryString(file);
+  const generatePreview = async (file: File) => {
+    if (file) {
+      try {
+        const data = await generateExcelPreview(file);
+        setPreview(data);
+      } catch (error) {
+        console.error(
+          "An error occurred while generating the preview." + error.message
+        );
+      }
+    }
   };
-
-  //   useEffect(() => {
-  //     alert("Selected Options" + JSON.stringify(selectedOptions));
-  //     setIsAllColumnSelected(
-  //       Object.keys(selectedOptions).length === collapseToast.length
-  //     );
-  // 	console.log(Object.keys(selectedOptions).length) ;
-  // 	console.log(preview[0].length) ;
-  //   }, [selectedOptions]);
 
   const processFile = async () => {
     if (!file) return;
@@ -108,8 +96,6 @@ export default function ExcelProcessor() {
         });
         setDownloadInvalidFile(invalidBlob);
       }
-
-      //   setDownloadFile(blob);
 
       setIsProcessed(true);
       setIsProcessing(false);
